@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ThemeToggle";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Link, useLocation } from "react-router-dom";
+import { fetchSettings, fetchNavigation } from "../services/cmsApi";
 
-const navLinks = [
+const defaultNavLinks = [
   { name: "Beranda", href: "/" },
   { name: "Profil", href: "/profil" },
   { name: "Katalog", href: "/katalog" },
@@ -19,12 +20,11 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const location = useLocation();
+  const [navLinks, setNavLinks] = useState(defaultNavLinks);
+  const [settings, setSettings] = useState<any>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.attributeName === "class") {
@@ -32,12 +32,23 @@ export function Navbar() {
         }
       });
     });
-
     observer.observe(document.documentElement, { attributes: true });
     window.addEventListener("scroll", handleScroll);
-    
-    // Initial check
     setIsDark(document.documentElement.classList.contains("dark"));
+
+    // Fetch CMS data
+    async function loadCmsData() {
+      const [siteSettings, navigation] = await Promise.all([fetchSettings(), fetchNavigation()]);
+      if (siteSettings) setSettings(siteSettings);
+      if (navigation && Array.isArray(navigation)) {
+        const mapped = navigation.map((item: any) => ({
+          name: item.label ?? item.name,
+          href: item.url ?? item.href ?? "/",
+        }));
+        if (mapped.length > 0) setNavLinks(mapped);
+      }
+    }
+    loadCmsData();
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
@@ -45,9 +56,10 @@ export function Navbar() {
     };
   }, []);
 
-  const logoUrl = isDark 
-    ? "https://i.imgur.com/lExe7nM.png" 
-    : "https://i.imgur.com/l3QMGh6.png";
+  const logoLightUrl = settings?.logo_light ?? "https://i.imgur.com/l3QMGh6.png";
+  const logoDarkUrl = settings?.logo_dark ?? "https://i.imgur.com/lExe7nM.png";
+  const logoUrl = isDark ? logoDarkUrl : logoLightUrl;
+  const shopeeUrl = settings?.shopee_url ?? "https://id.shp.ee/1uN1AdKC";
 
   return (
     <motion.nav
@@ -63,7 +75,7 @@ export function Navbar() {
         <Link to="/" className="flex items-center gap-2">
           <img 
             src={logoUrl} 
-            alt="GIAT Logo" 
+            alt={settings?.site_name ?? "GIAT Logo"} 
             className="h-14 md:h-16 w-auto object-contain transition-all duration-500"
             referrerPolicy="no-referrer"
           />
@@ -88,10 +100,10 @@ export function Navbar() {
           <ThemeToggle />
           <Button 
             className="hidden md:flex rounded-full bg-giat-red hover:bg-giat-red/90 text-white gap-2"
-            onClick={() => window.open("https://id.shp.ee/1uN1AdKC", "_blank")}
+            onClick={() => window.open(shopeeUrl, "_blank")}
           >
             <ShoppingBag className="w-4 h-4" />
-            Belanja Sekarang
+            {settings?.cta_button_text ?? "Belanja Sekarang"}
           </Button>
 
           {/* Mobile Navigation */}
@@ -117,7 +129,7 @@ export function Navbar() {
                   ))}
                   <Button 
                     className="mt-4 rounded-xl bg-giat-red hover:bg-giat-red/90 text-white gap-2 w-full"
-                    onClick={() => window.open("https://id.shp.ee/1uN1AdKC", "_blank")}
+                    onClick={() => window.open(shopeeUrl, "_blank")}
                   >
                     <ShoppingBag className="w-4 h-4" />
                     Kunjungi Shopee

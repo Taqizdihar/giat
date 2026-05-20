@@ -2,12 +2,60 @@ import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { fetchPage, fetchSettings } from "../services/cmsApi";
 
 export function Home() {
+  const [pageData, setPageData] = useState<any>(null);
+  const [settings, setSettings] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     document.title = "Beranda | GIAT";
+
+    async function loadData() {
+      const [page, siteSettings] = await Promise.all([
+        fetchPage("home"),
+        fetchSettings(),
+      ]);
+      setPageData(page);
+      setSettings(siteSettings);
+      setLoading(false);
+    }
+    loadData();
   }, []);
+
+  // Extract sections with fallbacks
+  const hero = pageData?.sections?.find((s: any) => s.type === "hero") ?? pageData?.hero ?? {};
+  const shopeeUrl = settings?.shopee_url ?? "https://id.shp.ee/1uN1AdKC";
+
+  if (loading) {
+    return (
+      <div className="pt-20">
+        <section className="relative min-h-[calc(100vh-80px)] flex items-center overflow-hidden">
+          <div className="container mx-auto px-6 py-12">
+            <div className="grid lg:grid-cols-12 gap-12 items-center">
+              <div className="lg:col-span-7 space-y-6">
+                <div className="h-6 w-64 bg-muted rounded-full animate-pulse" />
+                <div className="h-16 w-full max-w-lg bg-muted rounded-2xl animate-pulse" />
+                <div className="h-16 w-3/4 bg-muted rounded-2xl animate-pulse" />
+                <div className="h-5 w-full max-w-md bg-muted rounded-lg animate-pulse" />
+                <div className="h-5 w-3/4 max-w-md bg-muted rounded-lg animate-pulse" />
+                <div className="flex gap-4 pt-4">
+                  <div className="h-12 w-40 bg-muted rounded-full animate-pulse" />
+                  <div className="h-12 w-40 bg-muted rounded-full animate-pulse" />
+                </div>
+              </div>
+              <div className="relative lg:col-span-5">
+                <div className="rounded-[40px] overflow-hidden border-8 border-white dark:border-slate-800 aspect-[4/5] md:aspect-square bg-muted animate-pulse" />
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="pt-20">
       <section className="relative min-h-[calc(100vh-80px)] flex items-center overflow-hidden">
@@ -34,16 +82,21 @@ export function Home() {
                 transition={{ delay: 0.2 }}
                 className="inline-block px-4 py-1.5 mb-6 text-sm font-bold tracking-wider uppercase bg-giat-red/10 text-giat-red rounded-full"
               >
-                Koperasi Mahasiswa Telkom University
+                {hero?.badge ?? settings?.site_name ?? "Koperasi Mahasiswa Telkom University"}
               </motion.span>
               <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-6">
-                Kebutuhan <br />
-                <span className="text-giat-red">Kampusmu</span>, <br />
-                Lebih Mudah.
+                {hero?.title ? (
+                  <span dangerouslySetInnerHTML={{ __html: hero.title }} />
+                ) : (
+                  <>
+                    Kebutuhan <br />
+                    <span className="text-giat-red">Kampusmu</span>, <br />
+                    Lebih Mudah.
+                  </>
+                )}
               </h1>
               <p className="text-lg text-muted-foreground mb-10 max-w-lg leading-relaxed">
-                Tingkatkan pengalaman kuliahmu bersama GIAT. Dari seragam akademik hingga 
-                merchandise eksklusif Tel-U, kami menyediakan semua yang kamu butuhkan.
+                {hero?.subtitle ?? hero?.description ?? "Tingkatkan pengalaman kuliahmu bersama GIAT. Dari seragam akademik hingga merchandise eksklusif Tel-U, kami menyediakan semua yang kamu butuhkan."}
               </p>
               <div className="flex flex-wrap gap-4">
                 <Button 
@@ -51,8 +104,8 @@ export function Home() {
                   className="rounded-full px-8 bg-giat-red hover:bg-giat-red/90 text-white shadow-lg shadow-giat-red/20 group"
                   asChild
                 >
-                  <Link to="/katalog" className="flex items-center justify-center">
-                    Lihat Katalog
+                  <Link to={hero?.cta_primary_link ?? "/katalog"} className="flex items-center justify-center">
+                    {hero?.cta_primary_text ?? "Lihat Katalog"}
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>
@@ -62,8 +115,8 @@ export function Home() {
                   className="rounded-full px-8 border-giat-blue text-giat-blue hover:bg-giat-blue/5 group"
                   asChild
                 >
-                  <a href="https://id.shp.ee/1uN1AdKC" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center">
-                    Kunjungi Shopee
+                  <a href={hero?.cta_secondary_link ?? shopeeUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center">
+                    {hero?.cta_secondary_text ?? "Kunjungi Shopee"}
                     <ShoppingCart className="ml-2 w-4 h-4 opacity-70" />
                   </a>
                 </Button>
@@ -71,10 +124,10 @@ export function Home() {
 
               <div className="mt-12 flex items-center gap-8">
                 <div className="flex -space-x-3">
-                  {[1, 2, 3, 4].map((i) => (
+                  {(hero?.avatars ?? [1, 2, 3, 4]).map((item: any, i: number) => (
                     <div key={i} className="w-10 h-10 rounded-full border-2 border-background bg-muted overflow-hidden">
                       <img 
-                        src={`https://picsum.photos/seed/user${i}/100/100`} 
+                        src={typeof item === "object" ? item?.url : `https://picsum.photos/seed/user${i + 1}/100/100`} 
                         alt="User" 
                         referrerPolicy="no-referrer"
                       />
@@ -82,7 +135,7 @@ export function Home() {
                   ))}
                 </div>
                 <p className="text-sm font-medium">
-                  <span className="text-giat-red font-bold">1000+</span> Mahasiswa terlayani semester ini
+                  <span className="text-giat-red font-bold">{hero?.stats_count ?? "1000+"}</span> {hero?.stats_label ?? "Mahasiswa terlayani semester ini"}
                 </p>
               </div>
             </motion.div>
@@ -95,14 +148,14 @@ export function Home() {
             >
               <div className="relative z-10 rounded-[40px] overflow-hidden shadow-2xl border-8 border-white dark:border-slate-800 aspect-[4/5] md:aspect-square">
                 <img 
-                  src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop" 
-                  alt="Mahasiswa di Telkom University" 
+                  src={hero?.image ?? "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop"} 
+                  alt={hero?.image_alt ?? "Mahasiswa di Telkom University"} 
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-8 text-white">
-                  <p className="text-sm font-medium opacity-80 mb-1">Produk Unggulan</p>
-                  <h3 className="text-2xl font-bold">Seragam Resmi</h3>
+                  <p className="text-sm font-medium opacity-80 mb-1">{hero?.featured_label ?? "Produk Unggulan"}</p>
+                  <h3 className="text-2xl font-bold">{hero?.featured_title ?? "Seragam Resmi"}</h3>
                 </div>
               </div>
               
