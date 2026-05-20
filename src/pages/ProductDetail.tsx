@@ -49,7 +49,7 @@ export function ProductDetail() {
           <div className="grid md:grid-cols-2 gap-0">
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="relative aspect-square md:aspect-auto md:h-full bg-muted/20 p-8 flex items-center justify-center">
               {product.image_url ? (
-                <img src={product.image_url} alt={product.name ?? "Produk"} className="w-full h-full object-cover rounded-2xl shadow-md" referrerPolicy="no-referrer" />
+                <img src={product.image_url} alt={product.name ?? "Produk"} className="w-full h-full object-cover rounded-2xl shadow-md" referrerPolicy="no-referrer" onError={(e) => { e.currentTarget.src = "https://placehold.co/600x400?text=Image+Unavailable"; }} />
               ) : (
                 <div className="w-full h-full bg-slate-200 dark:bg-slate-800 rounded-2xl shadow-md" />
               )}

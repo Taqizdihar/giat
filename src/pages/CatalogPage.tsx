@@ -88,7 +88,7 @@ export function CatalogPage() {
                           <Card className="overflow-hidden border-none shadow-sm hover:shadow-xl transition-all duration-500 group rounded-[24px] bg-background h-full flex flex-col">
                             <div className="relative h-48 overflow-hidden bg-muted/20 flex items-center justify-center">
                               {product.image_url ? (
-                                <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" />
+                                <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" onError={(e) => { e.currentTarget.src = "https://placehold.co/600x400?text=Image+Unavailable"; }} />
                               ) : (
                                 <div className="w-full h-full bg-slate-200 dark:bg-slate-800" />
                               )}

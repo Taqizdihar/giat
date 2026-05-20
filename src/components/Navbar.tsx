@@ -78,6 +78,7 @@ export function Navbar() {
             alt={settings?.site_name ?? "GIAT Logo"} 
             className="h-14 md:h-16 w-auto object-contain transition-all duration-500"
             referrerPolicy="no-referrer"
+            onError={(e) => { e.currentTarget.src = "https://placehold.co/200x80?text=Logo"; }}
           />
         </Link>
 

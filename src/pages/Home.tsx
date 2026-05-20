@@ -130,6 +130,7 @@ export function Home() {
                         src={typeof item === "object" ? item?.url : `https://picsum.photos/seed/user${i + 1}/100/100`} 
                         alt="User" 
                         referrerPolicy="no-referrer"
+                        onError={(e) => { e.currentTarget.src = "https://placehold.co/100x100?text=U"; }}
                       />
                     </div>
                   ))}
@@ -152,6 +153,7 @@ export function Home() {
                   alt={hero?.image_alt ?? "Mahasiswa di Telkom University"} 
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
+                  onError={(e) => { e.currentTarget.src = "https://placehold.co/600x400?text=Image+Unavailable"; }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-8 text-white">
                   <p className="text-sm font-medium opacity-80 mb-1">{hero?.featured_label ?? "Produk Unggulan"}</p>

@@ -25,8 +25,8 @@ export function Footer() {
         <div className="grid lg:grid-cols-4 gap-12 mb-16">
           <div className="lg:col-span-1">
             <Link to="/" className="inline-block mb-6">
-              <img src={logoLight} alt={settings?.site_name ?? "GIAT Logo"} className="h-16 w-auto object-contain dark:hidden" referrerPolicy="no-referrer" />
-              <img src={logoDark} alt={settings?.site_name ?? "GIAT Logo"} className="h-16 w-auto object-contain hidden dark:block" referrerPolicy="no-referrer" />
+              <img src={logoLight} alt={settings?.site_name ?? "GIAT Logo"} className="h-16 w-auto object-contain dark:hidden" referrerPolicy="no-referrer" onError={(e) => { e.currentTarget.src = "https://placehold.co/200x80?text=Logo"; }} />
+              <img src={logoDark} alt={settings?.site_name ?? "GIAT Logo"} className="h-16 w-auto object-contain hidden dark:block" referrerPolicy="no-referrer" onError={(e) => { e.currentTarget.src = "https://placehold.co/200x80?text=Logo"; }} />
             </Link>
             <p className="text-muted-foreground mb-6 leading-relaxed">
               {settings?.site_description ?? "Koperasi Giat Sejahtera Bersama (GIAT) adalah koperasi modern dan profesional yang berdedikasi untuk menyediakan kebutuhan esensial berkualitas."}
