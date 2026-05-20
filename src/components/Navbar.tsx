@@ -110,10 +110,8 @@ export function Navbar() {
           {/* Mobile Navigation */}
           <div className="md:hidden">
             <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
-                  <Menu className="h-6 w-6" />
-                </Button>
+              <SheetTrigger render={<Button variant="ghost" size="icon" className="rounded-full" />}>
+                <Menu className="h-6 w-6" />
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] sm:w-[400px]">
                 <div className="flex flex-col gap-6 mt-10">

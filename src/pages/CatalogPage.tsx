@@ -96,8 +96,8 @@ export function CatalogPage() {
                                 <div className="absolute top-4 left-4 bg-giat-blue text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full z-10 shadow-sm">{product.stock_status}</div>
                               )}
                               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
-                                <Button className="rounded-full bg-white text-black hover:bg-white/90 gap-2" asChild>
-                                  <Link to={`/produk/${product.id ?? product.slug ?? index}`}>Lihat Detail</Link>
+                                <Button className="rounded-full bg-white text-black hover:bg-white/90 gap-2" render={<Link to={`/produk/${product.id ?? product.slug ?? index}`} />}>
+                                  Lihat Detail
                                 </Button>
                               </div>
                             </div>

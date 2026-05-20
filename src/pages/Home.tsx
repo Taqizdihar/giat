@@ -102,23 +102,19 @@ export function Home() {
                 <Button 
                   size="lg" 
                   className="rounded-full px-8 bg-giat-red hover:bg-giat-red/90 text-white shadow-lg shadow-giat-red/20 group"
-                  asChild
+                  render={<Link to={hero?.cta_primary_link ?? "/katalog"} className="flex items-center justify-center" />}
                 >
-                  <Link to={hero?.cta_primary_link ?? "/katalog"} className="flex items-center justify-center">
-                    {hero?.cta_primary_text ?? "Lihat Katalog"}
-                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </Link>
+                  {hero?.cta_primary_text ?? "Lihat Katalog"}
+                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
                 <Button 
                   size="lg" 
                   variant="outline" 
                   className="rounded-full px-8 border-giat-blue text-giat-blue hover:bg-giat-blue/5 group"
-                  asChild
+                  render={<a href={hero?.cta_secondary_link ?? shopeeUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center" />}
                 >
-                  <a href={hero?.cta_secondary_link ?? shopeeUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center">
-                    {hero?.cta_secondary_text ?? "Kunjungi Shopee"}
-                    <ShoppingCart className="ml-2 w-4 h-4 opacity-70" />
-                  </a>
+                  {hero?.cta_secondary_text ?? "Kunjungi Shopee"}
+                  <ShoppingCart className="ml-2 w-4 h-4 opacity-70" />
                 </Button>
               </div>
 

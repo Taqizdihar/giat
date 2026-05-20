@@ -122,11 +122,9 @@ export function ServiceDetail() {
                     </div>
                   ))}
                 </div>
-                <Button asChild className="w-full mt-10 bg-giat-blue hover:bg-giat-blue/90 text-white rounded-xl py-6 text-lg font-semibold shadow-lg shadow-giat-blue/20">
-                  <Link to="/kontak#form" className="flex flex-row items-center justify-center w-full h-full gap-2">
-                    <CreditCard className="w-5 h-5 shrink-0" />
-                    <span>Ajukan Sekarang</span>
-                  </Link>
+                <Button render={<Link to="/kontak#form" className="flex flex-row items-center justify-center w-full h-full gap-2" />} className="w-full mt-10 bg-giat-blue hover:bg-giat-blue/90 text-white rounded-xl py-6 text-lg font-semibold shadow-lg shadow-giat-blue/20">
+                  <CreditCard className="w-5 h-5 shrink-0" />
+                  <span>Ajukan Sekarang</span>
                 </Button>
               </div>
             </div>
