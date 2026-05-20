@@ -8,7 +8,7 @@ import axios from 'axios';
  *   and Content-Type: application/json.
  */
 const cmsClient = axios.create({
-  baseURL: import.meta.env.VITE_CMS_BASE_URL,
+  baseURL: import.meta.env.DEV ? '' : import.meta.env.VITE_CMS_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
     'x-api-key': import.meta.env.VITE_CMS_API_KEY,

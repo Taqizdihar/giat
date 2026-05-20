@@ -12,5 +12,12 @@ export default defineConfig({
   },
   server: {
     hmr: process.env.DISABLE_HMR !== 'true',
+    proxy: {
+      '/api': {
+        target: 'https://verse.uniinside.net',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
   },
 });
