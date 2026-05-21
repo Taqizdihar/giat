@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, ExternalLink } from "lucide-react";
-import { fetchPage, fetchSettings } from "../services/cmsApi";
+import { fetchPage, fetchSettings, extractContentBlock, CMS_SLUGS } from "../services/cmsApi";
 
 export function CatalogPage() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -18,13 +18,15 @@ export function CatalogPage() {
     document.title = "Katalog | GIAT";
     async function loadData() {
       const [pageData, settings] = await Promise.all([
-        fetchPage("katalog"),
+        fetchPage(CMS_SLUGS.CATALOG),
         fetchSettings(),
       ]);
       if (settings?.shopee_url) setShopeeUrl(settings.shopee_url);
       if (pageData) {
-        const cats = pageData?.categories ?? [];
-        const prods = pageData?.products ?? pageData?.items ?? [];
+        const catalogBlock = extractContentBlock(pageData, 'catalog', null) ?? extractContentBlock(pageData, 'products', null);
+        const source = catalogBlock ?? pageData ?? {};
+        const cats = source?.categories ?? [];
+        const prods = source?.products ?? source?.items ?? [];
         const allCats = [{ id: 'all', category_name: "Semua Produk" }, ...cats];
         setCategories(allCats);
         setProducts(prods);

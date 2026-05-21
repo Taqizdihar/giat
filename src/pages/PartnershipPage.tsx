@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Handshake, TrendingUp, Users } from "lucide-react";
 import { useEffect, useState } from "react";
-import { fetchPage } from "../services/cmsApi";
+import { fetchPage, extractContentBlock, CMS_SLUGS } from "../services/cmsApi";
 
 export function PartnershipPage() {
   const [pageData, setPageData] = useState<any>(null);
@@ -11,14 +11,15 @@ export function PartnershipPage() {
   useEffect(() => {
     document.title = "Kemitraan | GIAT";
     async function loadData() {
-      const data = await fetchPage("kemitraan");
+      const data = await fetchPage(CMS_SLUGS.PARTNERSHIP);
       setPageData(data);
       setLoading(false);
     }
     loadData();
   }, []);
 
-  const content = pageData?.content ?? pageData ?? {};
+  const partnerBlock = extractContentBlock(pageData, 'partnership', null) ?? extractContentBlock(pageData, 'kemitraan', null);
+  const content = partnerBlock ?? pageData?.content ?? pageData ?? {};
   const features = content?.features ?? [];
 
   // Default feature cards if CMS returns nothing

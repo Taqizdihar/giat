@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { Target, Eye, History } from "lucide-react";
 import { useState, useEffect } from "react";
-import { fetchPage } from "../services/cmsApi";
+import { fetchPage, extractContentBlock, CMS_SLUGS } from "../services/cmsApi";
 
 export function Profile() {
   const [pageData, setPageData] = useState<any>(null);
@@ -11,15 +11,16 @@ export function Profile() {
     document.title = "Profil | GIAT";
 
     async function loadData() {
-      const data = await fetchPage("profil");
+      const data = await fetchPage(CMS_SLUGS.PROFILE);
       setPageData(data);
       setLoading(false);
     }
     loadData();
   }, []);
 
-  // Extract content with fallbacks
-  const content = pageData?.content ?? pageData ?? {};
+  // Extract from content[] blocks or fallback to flat object
+  const profileBlock = extractContentBlock(pageData, 'profile', null) ?? extractContentBlock(pageData, 'about', null);
+  const content = profileBlock ?? pageData?.content ?? pageData ?? {};
 
   if (loading) {
     return (

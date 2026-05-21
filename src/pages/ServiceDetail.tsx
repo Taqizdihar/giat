@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { fetchPage } from "../services/cmsApi";
+import { fetchPage, extractContentBlock, CMS_SLUGS } from "../services/cmsApi";
 
 const iconMap: Record<string, any> = {
   'Wallet': Wallet, 'PiggyBank': PiggyBank, 'Briefcase': Briefcase,
@@ -23,9 +23,11 @@ export function ServiceDetail() {
   useEffect(() => {
     document.title = "Detail Layanan | GIAT";
     async function loadData() {
-      const data = await fetchPage("layanan");
+      const data = await fetchPage(CMS_SLUGS.SERVICES);
       if (data) {
-        const items = data?.items ?? data?.services ?? [];
+        const servicesBlock = extractContentBlock(data, 'services', null) ?? extractContentBlock(data, 'layanan', null);
+        const source = servicesBlock ?? data ?? {};
+        const items = source?.items ?? source?.services ?? data?.items ?? data?.services ?? [];
         const service = items.find((s: any) => (s.id ?? '').toString() === id || (s.slug ?? '') === id);
         if (service) {
           let parsedBenefits: string[] = [];

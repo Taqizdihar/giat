@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { ArrowLeft, ShoppingCart, MessageCircle, CheckCircle2, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { fetchPage, fetchSettings } from "../services/cmsApi";
+import { fetchPage, fetchSettings, extractContentBlock, CMS_SLUGS } from "../services/cmsApi";
 
 export function ProductDetail() {
   const { id } = useParams();
@@ -15,11 +15,13 @@ export function ProductDetail() {
 
   useEffect(() => {
     async function loadData() {
-      const [pageData, settings] = await Promise.all([fetchPage("katalog"), fetchSettings()]);
+      const [pageData, settings] = await Promise.all([fetchPage(CMS_SLUGS.CATALOG), fetchSettings()]);
       if (settings?.shopee_url) setShopeeUrl(settings.shopee_url);
       if (settings?.whatsapp_url) setWhatsappUrl(settings.whatsapp_url);
       if (pageData) {
-        const products = pageData?.products ?? pageData?.items ?? [];
+        const catalogBlock = extractContentBlock(pageData, 'catalog', null) ?? extractContentBlock(pageData, 'products', null);
+        const source = catalogBlock ?? pageData ?? {};
+        const products = source?.products ?? source?.items ?? [];
         const found = products.find((p: any) => (p.id ?? '').toString() === id || (p.slug ?? '') === id);
         setProduct(found ?? null);
       }

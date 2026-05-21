@@ -1,19 +1,20 @@
 import { motion } from "motion/react";
 import { MapPin, Phone, Mail, Clock, Instagram, ShoppingBag, Send } from "lucide-react";
 import React, { useState, useEffect } from "react";
-import { fetchPage, fetchSettings } from "../services/cmsApi";
-import cmsClient from "../services/cmsApi";
+import { fetchPage, fetchSettings, submitInquiry, extractContentBlock, CMS_SLUGS } from "../services/cmsApi";
 
 export function Contact() {
   const [content, setContent] = useState<any>({});
-  const [formData, setFormData] = useState({ sender_name: "", sender_email: "", subject: "", message: "" });
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     document.title = "Kontak | GIAT";
     async function loadData() {
-      const [pageData, settings] = await Promise.all([fetchPage("kontak"), fetchSettings()]);
-      setContent({ ...(settings ?? {}), ...(pageData?.content ?? pageData ?? {}) });
+      const [pageData, settings] = await Promise.all([fetchPage(CMS_SLUGS.CONTACT), fetchSettings()]);
+      const contactBlock = extractContentBlock(pageData, 'contact', null) ?? extractContentBlock(pageData, 'kontak', null);
+      const pageContent = contactBlock ?? pageData?.content ?? pageData ?? {};
+      setContent({ ...(settings ?? {}), ...pageContent });
     }
     loadData();
   }, []);
@@ -22,14 +23,14 @@ export function Contact() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await cmsClient.post("/api/v1/public/messages", {
-        sender_name: formData.sender_name,
-        sender_email: formData.sender_email || "N/A",
+      await submitInquiry({
+        name: formData.name,
+        email: formData.email || "N/A",
         subject: formData.subject,
-        message: `WhatsApp: ${formData.sender_email}\n\nPesan:\nMinta dihubungi untuk topik ${formData.subject}`,
+        message: formData.message || `WhatsApp: ${formData.email}\n\nTopik: ${formData.subject}`,
       });
       alert("Pesan berhasil dikirim!");
-      setFormData({ sender_name: "", sender_email: "", subject: "", message: "" });
+      setFormData({ name: "", email: "", subject: "", message: "" });
     } catch (err) {
       console.error("[CMS] Failed to send message:", err);
       alert("Gagal mengirim pesan.");
@@ -38,8 +39,12 @@ export function Contact() {
     }
   };
 
-  const instagramUrl = content?.instagram_url ?? "https://www.instagram.com/giatsejahterabersama";
-  const shopeeUrl = content?.shopee_url ?? content?.link_shopee ?? "https://id.shp.ee/1uN1AdKC";
+  // Resolve social links from social_links[] array or direct fields
+  const socialLinks: any[] = Array.isArray(content?.social_links) ? content.social_links : [];
+  const igLink = socialLinks.find((l: any) => l?.platform === 'instagram' || l?.type === 'instagram');
+  const spLink = socialLinks.find((l: any) => l?.platform === 'shopee' || l?.type === 'shopee');
+  const instagramUrl = igLink?.url || content?.instagram_url || "https://www.instagram.com/giatsejahterabersama";
+  const shopeeUrl = spLink?.url || content?.shopee_url || content?.link_shopee || "https://id.shp.ee/1uN1AdKC";
 
   return (
     <div className="pt-20">
@@ -90,11 +95,11 @@ export function Contact() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-1">Nama Lengkap</label>
-                    <input type="text" value={formData.sender_name} onChange={e => setFormData({...formData, sender_name: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-giat-blue/50" placeholder="Masukkan nama Anda..." required />
+                    <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-giat-blue/50" placeholder="Masukkan nama Anda..." required />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">Nomor WhatsApp</label>
-                    <input type="tel" value={formData.sender_email} onChange={e => setFormData({...formData, sender_email: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-giat-blue/50" placeholder="08..." required />
+                    <input type="tel" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-giat-blue/50" placeholder="08..." required />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">Pilih Topik</label>

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ThemeToggle";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Link, useLocation } from "react-router-dom";
-import { fetchSettings, fetchNavigation } from "../services/cmsApi";
+import { fetchSettings, fetchNavigation, normalizeNavItem } from "../services/cmsApi";
 
 const defaultNavLinks = [
   { name: "Beranda", href: "/" },
@@ -40,12 +40,13 @@ export function Navbar() {
     async function loadCmsData() {
       const [siteSettings, navigation] = await Promise.all([fetchSettings(), fetchNavigation()]);
       if (siteSettings) setSettings(siteSettings);
-      if (navigation && Array.isArray(navigation)) {
-        const mapped = navigation.map((item: any) => ({
-          name: item.label ?? item.name,
-          href: item.url ?? item.href ?? "/",
-        }));
-        if (mapped.length > 0) setNavLinks(mapped);
+      if (navigation) {
+        // fetchNavigation() already returns a normalized flat array of { title, slug }
+        const items = Array.isArray(navigation) ? navigation : [];
+        if (items.length > 0) {
+          const mapped = items.map(normalizeNavItem);
+          setNavLinks(mapped);
+        }
       }
     }
     loadCmsData();
@@ -56,8 +57,9 @@ export function Navbar() {
     };
   }, []);
 
-  const logoLightUrl = settings?.logo_light ?? "https://i.imgur.com/l3QMGh6.png";
-  const logoDarkUrl = settings?.logo_dark ?? "https://i.imgur.com/lExe7nM.png";
+  // Settings-driven branding with safe fallbacks
+  const logoLightUrl = settings?.logo_url || settings?.logo_light || "https://i.imgur.com/l3QMGh6.png";
+  const logoDarkUrl = settings?.logo_dark || settings?.logo_url || "https://i.imgur.com/lExe7nM.png";
   const logoUrl = isDark ? logoDarkUrl : logoLightUrl;
   const shopeeUrl = settings?.shopee_url ?? "https://id.shp.ee/1uN1AdKC";
 

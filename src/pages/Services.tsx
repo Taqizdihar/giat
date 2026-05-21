@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { 
   Wallet, PiggyBank, Briefcase, Building2, ShieldCheck, Gift, ChevronRight
 } from "lucide-react";
-import { fetchPage } from "../services/cmsApi";
+import { fetchPage, extractContentBlock, CMS_SLUGS } from "../services/cmsApi";
 
 const iconMap: Record<string, any> = {
   'Wallet': Wallet, 'PiggyBank': PiggyBank, 'Briefcase': Briefcase,
@@ -19,10 +19,12 @@ export function Services() {
   useEffect(() => {
     document.title = "Layanan | GIAT";
     async function loadData() {
-      const data = await fetchPage("layanan");
+      const data = await fetchPage(CMS_SLUGS.SERVICES);
       if (data) {
-        setPageContent(data);
-        const items = data?.items ?? data?.services ?? [];
+        const servicesBlock = extractContentBlock(data, 'services', null) ?? extractContentBlock(data, 'layanan', null);
+        const source = servicesBlock ?? data ?? {};
+        setPageContent(source);
+        const items = source?.items ?? source?.services ?? data?.items ?? data?.services ?? [];
         setServicesData(items.map((item: any) => ({
           ...item, icon: iconMap[item.icon_name] || Wallet,
         })));
